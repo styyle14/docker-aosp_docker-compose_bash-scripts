@@ -1,0 +1,6 @@
+[submodule "compose"]
+	path = compose
+	url = https://github.com/styyle14/docker-aosp_docker-compose.git
+[submodule "scripts"]
+	path = scripts
+	url = https://github.com/styyle14/docker-compose_bash-scripts.git

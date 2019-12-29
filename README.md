@@ -1,7 +1,9 @@
 # docker-aosp_docker-compose_bash-scripts
 Bash Scripts to Control Docker Compose to Build AOSP
 
-repo init -u https://android.googlesource.com/platform/manifest
+# https://source.android.com/setup/start/build-numbers#source-code-tags-and-builds
+# QQ1A.191205.011 	android-10.0.0_r16 	Android10 	Pixel 3a XL, Pixel 3a 	2019-12-05
+repo init -u https://android.googlesource.com/platform/manifest -b android-10.0.0_r16
 
 repo sync
 
@@ -11,6 +13,23 @@ repo sync
 
 source build/envsetup.sh
 
+ccache -M 100G
+
 lunch aosp_bonito-userdebug
 
+m update-api
+
+m system-api-stubs-docs-update-current-api
+
 m
+
+# Flashing steps
+
+export PATH="$(readlink -f ./platform-tools_r29.0.5-linux/platform-tools):${PATH}"
+
+export ANDROID_PRODUCT_OUT="$(readlink  -f ./out/target/product/bonito)"
+
+# If sudo needed
+sudo -E "$(which fastboot)" flashall -w --slot b
+# Otherwise
+fastboot flashall -w --slot b

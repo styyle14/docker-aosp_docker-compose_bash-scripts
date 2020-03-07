@@ -2,7 +2,10 @@
 Bash Scripts to Control Docker Compose to Build AOSP
 
 # -----------------------------------------------------------------------------------
-# Build Steps
+# Build Steps (Inside Docker)
+
+# First time only
+ccache -M 100G
 
 # https://source.android.com/setup/start/build-numbers#source-code-tags-and-builds
 # QQ1A.191205.011 	android-10.0.0_r16 	Android10 	Pixel 3a XL, Pixel 3a 	2019-12-05
@@ -13,15 +16,7 @@ repo init -u https://android.googlesource.com/platform/manifest -b android-10.X.
 
 repo sync
 
-# https://developers.google.com/android/drivers#bonito
-./extract-qcom-bonito.sh
-
-./extract-google_devices-bonito.sh
-
 source build/envsetup.sh
-
-# First time only?
-ccache -M 100G
 
 lunch aosp_bonito-userdebug
 
@@ -31,15 +26,19 @@ m update-api
 
 m system-api-stubs-docs-update-current-api
 
+# https://developers.google.com/android/drivers#bonito
+./extract-qcom-bonito.sh
+
+./extract-google_devices-bonito.sh
+
 # "-j4" needed due to RAM limitations. 16GB is not enough with 8 threads...
 m -j4
 
 # -----------------------------------------------------------------------------------
-# Flashing Steps
-
-export PATH="$(readlink -f ../platform-tools_r29.0.5-linux/platform-tools):${PATH}"
-
-export ANDROID_PRODUCT_OUT="$(readlink  -f ./out/target/product/bonito)"
+# Flashing Steps (Outside Docker)
+# Ensure platform tools are installed (/usr/local/bin or ~/.local/bin)
+# https://developer.android.com/studio/releases/platform-tools#downloads
+export ANDROID_PRODUCT_OUT="$(readlink  -f ./compose/run/workspace/out/target/product/bonito)"
 
 # FIRST TIME!!! ==> The "-w" option wipes ALL user data; proceed with CAUTION!!!
 # If fastboot not in root $PATH:
@@ -52,3 +51,4 @@ sudo fastboot flashall -w --slot b
 sudo fastboot flashall --slot b
 # Once boot.img has been patched by Magisk Manager app on phone:
 sudo fastboot flash --slot b boot magisk_patched.img
+
